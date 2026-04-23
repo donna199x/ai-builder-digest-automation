@@ -1,0 +1,12 @@
+{
+  "name": "ai-builder-digest-automation",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "run": "node scripts/daily-digest.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,29 @@
+name: Daily AI Builders Digest
+
+on:
+  schedule:
+    # GitHub Actions uses UTC. This is 09:00 Asia/Shanghai.
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repo
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Generate and write digest
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
+          NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
+          DIGEST_MODEL: ${{ vars.DIGEST_MODEL || 'gpt-4.1-mini' }}
+          TIMEZONE: Asia/Shanghai
+        run: npm run run
