@@ -24,7 +24,7 @@ For your current draft database, use this as `NOTION_DATABASE_ID`:
 
 ## Optional GitHub Variable
 
-- `GEMINI_MODEL`, default: `gemini-2.5-flash`
+- `GEMINI_MODEL`, default: `gemini-2.5-flash,gemini-2.0-flash,gemini-2.0-flash-lite`
 
 ## Schedule
 
