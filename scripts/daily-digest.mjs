@@ -75,8 +75,8 @@ function compactFeed(feedX, feedPodcasts, feedBlogs) {
 }
 
 async function generateDigest(feed, today, timeZone) {
-  const apiKey = requireEnv('GEMINI_API_KEY');
-  const models = (process.env.GEMINI_MODEL || 'gemini-2.5-flash,gemini-2.0-flash,gemini-2.0-flash-lite')
+  const apiKey = requireEnv('GITHUB_TOKEN');
+  const models = (process.env.GITHUB_MODEL || 'openai/gpt-4.1-mini,openai/gpt-4.1')
     .split(',')
     .map((m) => m.trim())
     .filter(Boolean);
@@ -110,40 +110,39 @@ ${JSON.stringify(feed)}`;
   let lastError = null;
   for (const model of models) {
     for (let attempt = 1; attempt <= 3; attempt += 1) {
-      const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
-      const res = await fetch(url, {
+      const res = await fetch('https://models.github.ai/inference/chat/completions', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json',
+          'X-GitHub-Api-Version': '2026-03-10'
+        },
         body: JSON.stringify({
-          contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 5000
-          }
+          model,
+          messages: [{ role: 'user', content: prompt }],
+          temperature: 0.3,
+          max_tokens: 5000
         })
       });
 
       if (res.ok) {
         const data = await res.json();
-        const outputText = (data.candidates || [])
-          .flatMap((candidate) => candidate.content?.parts || [])
-          .map((part) => part.text || '')
-          .join('\n')
-          .trim();
-        if (!outputText) throw new Error('Gemini API returned empty digest text');
+        const outputText = data.choices?.[0]?.message?.content?.trim() || '';
+        if (!outputText) throw new Error('GitHub Models returned empty digest text');
         return outputText;
       }
 
       const body = await res.text();
-      lastError = new Error(`Gemini API error using ${model}: ${res.status} ${body}`);
+      lastError = new Error(`GitHub Models API error using ${model}: ${res.status} ${body}`);
       if (![429, 500, 502, 503, 504].includes(res.status)) throw lastError;
       const delayMs = attempt * 5000;
-      console.warn(`Gemini model ${model} attempt ${attempt} failed with ${res.status}; retrying in ${delayMs}ms`);
+      console.warn(`GitHub model ${model} attempt ${attempt} failed with ${res.status}; retrying in ${delayMs}ms`);
       await new Promise((resolve) => setTimeout(resolve, delayMs));
     }
   }
 
-  throw lastError || new Error('Gemini API failed for all configured models');
+  throw lastError || new Error('GitHub Models API failed for all configured models');
 }
 
 function markdownToNotionBlocks(markdown) {

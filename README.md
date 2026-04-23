@@ -3,7 +3,7 @@
 Runs a daily cloud automation that:
 
 1. Fetches `follow-builders` public feeds from GitHub.
-2. Generates a concise Chinese + English digest with the Gemini API.
+2. Generates a concise Chinese + English digest with GitHub Models.
 3. Creates or updates today's page in your Notion `draft` database.
 
 This is designed for GitHub Actions, so it can run even when your computer is off.
@@ -12,7 +12,6 @@ This is designed for GitHub Actions, so it can run even when your computer is of
 
 Add these in your GitHub repo:
 
-- `GEMINI_API_KEY`
 - `NOTION_TOKEN`
 - `NOTION_DATABASE_ID`
 
@@ -24,7 +23,7 @@ For your current draft database, use this as `NOTION_DATABASE_ID`:
 
 ## Optional GitHub Variable
 
-- `GEMINI_MODEL`, default: `gemini-2.5-flash,gemini-2.0-flash,gemini-2.0-flash-lite`
+- `GITHUB_MODEL`, default: `openai/gpt-4.1-mini,openai/gpt-4.1`
 
 ## Schedule
 

@@ -6,6 +6,10 @@ on:
     - cron: "0 1 * * *"
   workflow_dispatch:
 
+permissions:
+  contents: read
+  models: read
+
 jobs:
   digest:
     runs-on: ubuntu-latest
@@ -21,9 +25,9 @@ jobs:
 
       - name: Generate and write digest
         env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
-          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash,gemini-2.0-flash,gemini-2.0-flash-lite' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_MODEL: ${{ vars.GITHUB_MODEL || 'openai/gpt-4.1-mini,openai/gpt-4.1' }}
           TIMEZONE: Asia/Shanghai
         run: npm run run
