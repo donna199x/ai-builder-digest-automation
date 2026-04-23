@@ -75,8 +75,8 @@ function compactFeed(feedX, feedPodcasts, feedBlogs) {
 }
 
 async function generateDigest(feed, today, timeZone) {
-  const apiKey = requireEnv('OPENAI_API_KEY');
-  const model = process.env.DIGEST_MODEL || 'gpt-4.1-mini';
+  const apiKey = requireEnv('GEMINI_API_KEY');
+  const model = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
   const prompt = `You are writing a concise bilingual AI Builders Digest for ${today} (${timeZone}).
 
 Rules:
@@ -104,28 +104,32 @@ Rules:
 Feed JSON:
 ${JSON.stringify(feed)}`;
 
-  const res = await fetch('https://api.openai.com/v1/responses', {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(apiKey)}`;
+  const res = await fetch(url, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model,
-      input: prompt,
-      text: { format: { type: 'text' } }
+      contents: [{ role: 'user', parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.3,
+        maxOutputTokens: 5000
+      }
     })
   });
 
   if (!res.ok) {
     const body = await res.text();
-    throw new Error(`OpenAI API error: ${res.status} ${body}`);
+    throw new Error(`Gemini API error: ${res.status} ${body}`);
   }
 
   const data = await res.json();
-  const outputText = data.output_text || data.output?.flatMap((item) => item.content || [])?.map((c) => c.text || '').join('\n') || '';
-  if (!outputText.trim()) throw new Error('OpenAI API returned empty digest text');
-  return outputText.trim();
+  const outputText = (data.candidates || [])
+    .flatMap((candidate) => candidate.content?.parts || [])
+    .map((part) => part.text || '')
+    .join('\n')
+    .trim();
+  if (!outputText) throw new Error('Gemini API returned empty digest text');
+  return outputText;
 }
 
 function markdownToNotionBlocks(markdown) {

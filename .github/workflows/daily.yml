@@ -21,9 +21,9 @@ jobs:
 
       - name: Generate and write digest
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           NOTION_TOKEN: ${{ secrets.NOTION_TOKEN }}
           NOTION_DATABASE_ID: ${{ secrets.NOTION_DATABASE_ID }}
-          DIGEST_MODEL: ${{ vars.DIGEST_MODEL || 'gpt-4.1-mini' }}
+          GEMINI_MODEL: ${{ vars.GEMINI_MODEL || 'gemini-2.5-flash' }}
           TIMEZONE: Asia/Shanghai
         run: npm run run
