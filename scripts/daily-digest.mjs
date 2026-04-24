@@ -151,7 +151,32 @@ function markdownToNotionBlocks(markdown) {
   let paragraph = [];
   let bullets = [];
 
-  const rich = (text) => [{ type: 'text', text: { content: text.slice(0, 1900) } }];
+  const decodeMarkdownEscapes = (text) => text
+    .replace(/\\\[/g, '[')
+    .replace(/\\\]/g, ']')
+    .replace(/\\\(/g, '(')
+    .replace(/\\\)/g, ')')
+    .replace(/\\\|/g, '|');
+
+  const rich = (text) => {
+    const decoded = decodeMarkdownEscapes(text);
+    const parts = [];
+    const regex = /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = regex.exec(decoded)) !== null) {
+      const [full, label, url] = match;
+      const before = decoded.slice(lastIndex, match.index);
+      if (before) parts.push({ type: 'text', text: { content: before.slice(0, 1900) } });
+      parts.push({ type: 'text', text: { content: label.slice(0, 1900), link: { url } } });
+      lastIndex = match.index + full.length;
+    }
+
+    const tail = decoded.slice(lastIndex);
+    if (tail) parts.push({ type: 'text', text: { content: tail.slice(0, 1900) } });
+    return parts.length ? parts : [{ type: 'text', text: { content: decoded.slice(0, 1900) } }];
+  };
   const flushParagraph = () => {
     if (paragraph.length) {
       blocks.push({ object: 'block', type: 'paragraph', paragraph: { rich_text: rich(paragraph.join(' ')) } });
