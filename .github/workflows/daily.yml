@@ -2,8 +2,10 @@ name: Daily AI Builders Digest
 
 on:
   schedule:
-    # GitHub Actions uses UTC. This is 09:17 Asia/Shanghai, offset from the top of the hour to reduce missed schedule runs.
+    # GitHub Actions uses UTC. Primary run is 09:17 Asia/Shanghai, offset from the top of the hour to reduce missed schedule runs.
     - cron: "17 1 * * *"
+    # Backup run at 09:47 Asia/Shanghai in case GitHub drops or delays the primary schedule.
+    - cron: "47 1 * * *"
   workflow_dispatch:
 
 permissions:
