@@ -276,14 +276,9 @@ async function upsertDigestPage(markdown, today) {
   const databaseId = requireEnv('NOTION_DATABASE_ID').replace(/-/g, '');
   const title = `AI Builders Digest - ${today}`;
   const existing = await findDigestPage(databaseId, title);
-  const skipIfExists = process.env.SKIP_IF_EXISTS === '1';
   const blocks = markdownToNotionBlocks(markdown);
 
   if (existing) {
-    if (skipIfExists) {
-      console.log(`Skipped existing Notion page: ${existing.url}`);
-      return existing.url;
-    }
     await archiveExistingChildren(existing.id);
     await appendBlocks(existing.id, blocks);
     console.log(`Updated existing Notion page: ${existing.url}`);

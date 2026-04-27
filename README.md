@@ -27,18 +27,9 @@ For your current draft database, use this as `NOTION_DATABASE_ID`:
 
 ## Schedule
 
-There are now two cloud layers:
+The workflow runs once a day at `09:17 Asia/Shanghai`.
 
-1. `Daily AI Builders Digest`
-   - Primary daily run at `09:17 Asia/Shanghai`
-   - Backup daily run at `09:47 Asia/Shanghai`
-
-2. `Digest Watchdog`
-   - Hourly backfill checks from `09:11` through `23:11 Asia/Shanghai`
-   - If today's page already exists, it exits without changing anything
-   - If today's page is missing, it creates it
-
-You can also run either workflow manually from GitHub Actions with `workflow_dispatch`.
+You can also run it manually from GitHub Actions with `workflow_dispatch`.
 
 ## Notion Permissions
 
